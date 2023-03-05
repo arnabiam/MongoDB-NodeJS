@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator')
 
 
 //Conection and creating in  a new db
@@ -15,10 +16,40 @@ const playlistSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique:true,
-        lowercase:true
+        lowercase:true  //builtin validation
+        //uppercase:true,
+        //trim: true,
+        //minlength: [2, "minimum length is 2"],
+        //maxlength:8
     },
-    ctype: String,
-    videos: Number,
+    ctype: {
+        type: String,
+        required: true,
+        lowercase: true,
+        enum: ["frontend" , "backend" , "database"]  //will throw error if not satsfied
+    },
+    videos: {
+       type: Number,
+    //    validate(value){
+    //     throw new Error('videos count shouldnt be negative')
+    //    }
+    
+    validate:{
+        validator:function(value){
+          return value.length<0
+        },
+        message: "Videos count should not be negative"
+    }
+
+    },
+    email:{
+        type:String,
+        validate(value){
+            if(!this.validator.isEmail(value)){
+                throw new Error("Email not VAlid")
+            }
+        }
+    },
     author: String,
     active: Boolean,
     date:{
@@ -90,7 +121,7 @@ const getDocument = async ()=>{
 getDocument();
 
 // const updateDocument = async(id)=>{
-//     //finfByIdAndUpdate, useFindAndModify : false, new: true
+//     //findByIdAndUpdate, useFindAndModify : false, new: true
 //     try{
 //         const result = await Playlist.updateOne({_id:id}, {$set : {
 //             name: "Javascript"
